@@ -1,11 +1,19 @@
 # -*- coding: utf-8 -*-
+import re
 
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+from lxml.html.clean import Cleaner
 
 
-class JobPipeline:
+class JobPipeline(object):
+    def __init__(self):
+        self.cleaner = Cleaner(style=True, links=True,
+            add_nofollow=True, page_structure=False, safe_attrs=[],
+            remove_tags=['svg', 'img'])
+
+    def clean_html(self, html):
+        html = self.cleaner.clean_html(html)
+        return re.sub(r'\s+', ' ', html)
+
     def process_item(self, item, spider):
+        item['description'] = self.clean_html(item['description'])
         return item
