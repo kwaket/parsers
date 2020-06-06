@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import scrapy
 from scrapy.item import Field
 
@@ -16,4 +15,5 @@ class JobItem(scrapy.Item):
     address = Field()
     experience = Field()
     employment_mode = Field()
+    description = Field()
     url = Field()
