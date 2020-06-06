@@ -7,9 +7,22 @@ from job.items import JobItem
 class HhSpider(scrapy.Spider):
     name = 'hh'
     allowed_domains = ['hh.ru']
-    start_urls = ['https://hh.ru/vacancy/36476804']
+    start_urls = [
+        'https://hh.ru/search/vacancy?area=1&text=Data+scientist'
+    ]
 
     def parse(self, response):
+        for href in response.xpath(
+                '//a[@data-qa="vacancy-serp__vacancy-title"]/@href'):
+            url = response.urljoin(href.extract().split('?')[0])
+            yield scrapy.Request(url, callback=self.parse_item)
+
+        next_page = response.xpath(
+            '//a[@data-qa="pager-next"]/@href').get()
+        if next_page is not None:
+            yield response.follow(next_page, callback=self.parse)
+
+    def parse_item(self, response):
         item = JobItem()
 
         content = response.xpath(
@@ -23,26 +36,15 @@ class HhSpider(scrapy.Spider):
             './/p[@class="vacancy-salary"]//*/text()').getall()
         item['company'] = content.xpath(
             './/a[@data-qa="vacancy-company-name"]//*/text()').getall()
-
-        xpath_t = './p/strong[contains(text(), "{}")]/ancestor::p/following::ul[1]/li/text()'
-        item['responsibilities'] = vacancy_section.xpath(xpath_t.format(
-            'Обязанности')).getall()
-        item['requirements'] = vacancy_section.xpath(xpath_t.format(
-            'Требования')).getall()
-        item['conditions'] = vacancy_section.xpath(xpath_t.format(
-            'Условия')).getall()
-        item['as_a_plus'] = vacancy_section.xpath(xpath_t.format(
-            'Будет преимуществом')).getall()
-        item['skills'] = content.xpath(
-            './/*[contains(@data-qa, "skills-element")]/span/text()'
-            ).getall()
-
         item['address'] = content.xpath(
             './/p[@data-qa="vacancy-view-location"]//text()').getall()
         item['experience'] = content.xpath(
             './/*[@data-qa="vacancy-experience"]//text()').getall()
         item['employment_mode'] = content.xpath(
             './/*[@data-qa="vacancy-view-employment-mode"]//text()'
+            ).getall()
+        item['skills'] = content.xpath(
+            './/*[contains(@data-qa, "skills-element")]/span/text()'
             ).getall()
         item['description'] = vacancy_section.get()
         item['url'] = response.request.url
