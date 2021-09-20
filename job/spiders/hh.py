@@ -7,9 +7,13 @@ from job.items import JobItem
 class HhSpider(scrapy.Spider):
     name = 'hh'
     allowed_domains = ['hh.ru']
-    start_urls = [
-        'https://hh.ru/search/vacancy?area=1&text=Data+scientist'
-    ]
+
+    def __init__(self, *args, **kwargs):
+        urls = kwargs.pop('urls', [])
+        if urls:
+            self.start_urls = urls.split(',')
+        self.logger.info(self.start_urls)
+        super(HhSpider, self).__init__(*args, **kwargs)
 
     def parse(self, response):
         for href in response.xpath(
