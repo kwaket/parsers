@@ -37,7 +37,7 @@ class HhSpider(scrapy.Spider):
         item['company'] = content.xpath(
             './/a[@data-qa="vacancy-company-name"]//*/text()').getall()
         item['address'] = content.xpath(
-            './/a[@data-qa="vacancy-view-link-location"]//text()|.//p[@data-qa="vacancy-view-location"]//text()').getall()
+            '(.//a[@data-qa="vacancy-view-link-location"]|.//p[@data-qa="vacancy-view-location"])//text()').getall()
         item['experience'] = content.xpath(
             './/*[@data-qa="vacancy-experience"]//text()').getall()
         item['employment_mode'] = content.xpath(
