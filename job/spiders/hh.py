@@ -3,16 +3,27 @@ import scrapy
 
 from job.items import JobItem
 
+from typing import List
+
+
+def _extract_starturls(filepath: str, pages_num: int=1) -> List['str']:
+    urls = []
+    with open(filepath, 'r') as urls_file:
+        for line in urls_file.readlines():
+            for page in range(pages_num):
+                urls.append(line + '&page=' + str(page))
+    return urls
 
 class HhSpider(scrapy.Spider):
     name = 'hh'
     allowed_domains = ['hh.ru']
 
     def __init__(self, *args, **kwargs):
-        urls = kwargs.pop('urls', [])
-        if urls:
-            self.start_urls = urls.split(',')
-        self.logger.info(self.start_urls)
+        filepath = kwargs.pop('urls-file', None)
+        if filepath:
+            self.start_urls = _extract_starturls(filepath)
+        else:
+            self.start_urls = []
         super(HhSpider, self).__init__(*args, **kwargs)
 
     def parse(self, response):
