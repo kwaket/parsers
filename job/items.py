@@ -17,3 +17,5 @@ class JobItem(scrapy.Item):
     employment_mode = Field()
     description = Field()
     url = Field()
+    creation_time = Field()
+    closing_time = Field()

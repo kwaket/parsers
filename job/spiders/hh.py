@@ -62,5 +62,7 @@ class HhSpider(scrapy.Spider):
             ).getall()
         item['description'] = vacancy_section.get()
         item['url'] = response.request.url
+        item['creation_time'] = content.xpath('.//p[@class="vacancy-creation-time"]')
+        item['closing_time'] = None
 
         yield item
