@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-import scrapy
-
-from job.items import JobItem
-
 from typing import List
+
+import scrapy
+from job.items import JobItem
 
 
 def _extract_starturls(filepath: str, pages_num: int=1) -> List['str']:
