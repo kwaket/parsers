@@ -42,8 +42,7 @@ class HhSpider(scrapy.Spider):
 
         content = response.xpath(
             '(//div[@class="main-content"]//div[contains(@class, "bloko-column_container")])[1]')
-        vacancy_section = content.xpath(
-            '(//div[@class="vacancy-description"]/div[@class="vacancy-section"])[1]/div[1]')
+        vacancy_section = content.xpath('(//div[@class="vacancy-description"])[1]')
 
         item['name'] = content.xpath(
             './/div[contains(@class, "vacancy-title")]/h1//text()').get()
