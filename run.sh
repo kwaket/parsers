@@ -1,0 +1,1 @@
+./env/bin/scrapy crawl hh -o $(date +%Y-%m-%d).csv -a "urls-file=urls.txt" -a "pages_num=15"
