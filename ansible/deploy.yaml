@@ -1,0 +1,61 @@
+---
+- hosts: dev
+  become: yes
+
+  vars:
+    app_path: /opt/crawler
+    venv_path: "{{ app_path }}/env"
+    urlsfile_path: ../urls.txt
+    data_path: "/home/{{ ansible_ssh_user }}/$(date +%Y-%m-%d).csv"
+    page_num: 15
+    git_repository: https://github.com/kwaket/parsers.git
+    git_branch: dev
+
+  tasks:
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+      upgrade: yes
+
+  - name: Install required packages
+    apt:
+      name:
+      - python3
+      - python3-dev
+      - python3-pip
+      - git
+      - virtualenv
+
+  - name: Make dir for project
+    file:
+      path: "{{ app_path }}"
+      state: directory
+      owner: "{{ ansible_ssh_user }}"
+      group: www-data
+      recurse: yes
+
+  - name: Cloning repository
+    git:
+      repo: "{{ git_repository }}"
+      dest: "{{ app_path }}"
+      version: "{{ git_branch }}"
+      force: yes
+
+  - name: Initiate virtualenv
+    pip:
+      virtualenv: "{{ venv_path }}"
+      virtualenv_python: python3.8
+      requirements: "{{ app_path }}/requirements.txt"
+
+  - name: Create run.sh file
+    template:
+      src: ./templates/run.sh.j2
+      dest: "{{ app_path }}/run.sh"
+      owner: "{{ ansible_ssh_user }}"
+      group: www-data
+      mode: u=rwx,g=r,o=r
+
+  - name: Copy file with start urls
+    copy:
+      src: "{{ urlsfile_path }}"
+      dest: "{{ app_path }}"
